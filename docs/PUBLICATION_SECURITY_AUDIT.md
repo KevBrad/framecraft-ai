@@ -60,3 +60,9 @@ The initial code/packaging review covered source only. The final payload review 
 - The pitch PDF contains 12 image-based pages, the case study six searchable-text pages, and the overview one searchable-text page. They are unencrypted. Text and metadata contain no private host path. No embedded attachment, launch or JavaScript action was found. Public links use HTTP(S). The image-based pitch PDF limitation is explicitly documented beside its editable PowerPoint source.
 
 This gate approves the prepared **file payload** for the parent's intentional first commit. It does not assert that proposed Git objects or history have been scanned, that a public push has occurred, or that GitHub rendering/downloads have been verified. The parent must inspect the exact staged list and scan the new source/profile histories before any push, then verify the published repositories separately. Scanner results reduce exposure risk but do not prove the absence of every possible secret or a production security boundary.
+
+## Pre-publication history and transfer checks
+
+The publishing workflow inspected the exact 114-file source index and one-file profile index. The additional source file is `.gitattributes`, which protects PDFs, presentations, images, fonts and the approved MP4 from line-ending conversion. Binary Git-index hashes match the reviewed filesystem files; all four document copies match the delivered originals. All 32 relative Markdown links resolve.
+
+Both intentional initial Git histories passed Gitleaks 8.30.1 with zero findings before publication. There was no original committed application history to migrate. The complete proposed histories, including this audit update, must pass the same scan immediately before the first push. This review does not claim a penetration test or a hardened public deployment.
