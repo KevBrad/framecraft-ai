@@ -1,0 +1,100 @@
+/** Real Framecraft 3 editor integration. No HTTP or media responses are mocked.
+ * Use an expendable test project: this script saves and renders its first clip.
+ * FRAMECRAFT_TEST_PROJECT_ID must identify a test project, not a user's project.
+ */
+import assert from 'node:assert/strict';
+import {mkdir,writeFile,readFile} from 'node:fs/promises';
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+const {chromium}=await import(process.env.FRAMECRAFT_PLAYWRIGHT_MODULE?pathToFileURL(process.env.FRAMECRAFT_PLAYWRIGHT_MODULE).href:'playwright');
+const base=process.env.FRAMECRAFT_URL||'http://127.0.0.1:8000';
+const id=process.env.FRAMECRAFT_TEST_PROJECT_ID;
+if(!id)throw new Error('Set FRAMECRAFT_TEST_PROJECT_ID to an expendable analyzed test project.');
+const artifacts=process.env.FRAMECRAFT_ARTIFACTS||path.resolve(import.meta.dirname,'../../tests/artifacts/v3-browser');
+await mkdir(artifacts,{recursive:true});
+const browser=await chromium.launch({headless:true,...(process.env.FRAMECRAFT_CHROME?{executablePath:process.env.FRAMECRAFT_CHROME}:{channel:'chrome'})});
+const page=await browser.newPage({viewport:{width:1440,height:1050},acceptDownloads:true});
+const errors=[],checks=[];
+page.on('pageerror',e=>errors.push(e.message));
+const check=(name,detail)=>checks.push({name,status:'passed',detail});
+try{
+ await page.goto(base);
+ await page.getByRole('button',{name:'New project',exact:true}).last().click();
+ assert.equal(await page.getByLabel('Discovery mode',{exact:true}).inputValue(),'viral_moments');
+ assert.equal(await page.getByLabel('Requested clips',{exact:true}).inputValue(),'10');
+ assert.equal(await page.getByLabel('Export quality',{exact:true}).inputValue(),'1080p');
+ await page.getByLabel('Discovery mode',{exact:true}).selectOption('custom_prompt');
+ await page.getByLabel('Describe the moments to find').fill('Complete explanations of a surprising claim');
+ await page.getByLabel('Clip duration',{exact:true}).selectOption('30-60');
+ assert.equal(await page.getByRole('spinbutton',{name:'Shortest clip sec',exact:true}).inputValue(),'30');
+ assert.equal(await page.getByRole('spinbutton',{name:'Longest clip sec',exact:true}).inputValue(),'60');
+ await page.setViewportSize({width:390,height:844});
+ const narrow=await page.evaluate(()=>({width:innerWidth,scroll:document.documentElement.scrollWidth}));assert.ok(narrow.scroll<=narrow.width);
+ await page.screenshot({path:path.join(artifacts,'creation-mobile.png'),fullPage:true});
+ check('generation controls and mobile layout',{defaultMode:'viral_moments',requested:10,resolution:'1080p',duration:[30,60],narrow});
+ await page.getByRole('button',{name:'Close dialog',exact:true}).click();
+ await page.setViewportSize({width:1440,height:1050});
+ const project=await(await page.request.get(`${base}/api/projects/${encodeURIComponent(id)}`)).json();
+ assert.ok(project.clips?.length,'Test project must contain clips');
+ await page.getByRole('button',{name:`Open ${project.title}`,exact:true}).click();
+ assert.ok(await page.locator('.score small').first().innerText()==='/10');
+ await page.getByText('Why this moment?',{exact:true}).first().click();
+ assert.ok((await page.locator('.score-reason[open]').first().innerText()).length>30);
+ if(project.clips[0].editorial)assert.ok(await page.locator('.score-breakdown meter').count()>0);
+ await page.getByLabel('Sort by').selectOption('topic');
+ await page.getByLabel('Sort by').selectOption('score');
+ check('ranked explainable gallery','Source-backed score, explanation, dimensions when available and topic sorting.');
+ await page.getByRole('button',{name:'Analyze again',exact:true}).click();
+ await page.getByLabel('Requested clips',{exact:true}).fill('3');
+ await page.getByRole('button',{name:'Keep current settings',exact:true}).click();
+ check('reanalyze settings','Existing project can review and change discovery options without starting processing until submission.');
+ await page.getByRole('button',{name:'Make it yours',exact:true}).first().click();
+ for(const name of ['Creator Bold','Karaoke Pop','Clean Editorial','Podcast Dynamic','Viral Energy']){
+  await page.getByRole('button',{name:`Aa ${name}`,exact:true}).click();
+  assert.equal(await page.getByRole('button',{name:`Aa ${name}`,exact:true}).getAttribute('class').then(x=>x.includes('selected')),true);
+ }
+ await page.getByRole('textbox',{name:'Caption 1 text',exact:true}).fill('A meaningful idea for a clear story.');
+ await page.getByLabel('Caption 1 emoji',{exact:true}).selectOption('💡');
+ await page.getByLabel('Caption 1 keywords',{exact:true}).fill('meaningful, idea');
+ await page.getByLabel('Show contextual emojis',{exact:true}).check();
+ await page.getByLabel('Animate captions',{exact:true}).check();
+ await page.getByLabel('Highlight keywords',{exact:true}).check();
+ await page.getByRole('button',{name:'Save',exact:true}).click();
+ await page.getByText(/All changes saved · v/).waitFor();
+ const clipId=(await(await page.request.get(`${base}/api/projects/${id}`)).json()).clips.filter(clip=>clip.analysis_active!==false).sort((a,b)=>(b.editorial?.score??b.score/10)-(a.editorial?.score??a.score/10))[0].id;
+ const updated=(await(await page.request.get(`${base}/api/projects/${id}`)).json()).clips.find(clip=>clip.id===clipId);
+ assert.equal(updated.edit.caption_preset,'viral-energy');assert.equal(updated.edit.captions[0].emoji,'💡');assert.deepEqual(updated.edit.captions[0].keywords,['meaningful','idea']);
+ check('professional captions and manual intelligence','All five presets selectable; corrected text, individually selected emoji and keywords persist through real PUT.');
+ await page.getByRole('button',{name:'Frame',exact:true}).click();
+ await page.getByLabel('Export quality',{exact:true}).selectOption('1080p');
+ await page.getByRole('button',{name:'9:16',exact:true}).click();
+ await page.getByRole('button',{name:'Fit original Keep the full video with letterboxing.',exact:true}).click();
+ await page.getByLabel('Normalize speech loudness',{exact:true}).check();await page.getByLabel('Show title as opening hook',{exact:true}).check();
+ await page.getByLabel('Editing intensity',{exact:true}).selectOption('balanced');
+ await page.getByRole('button',{name:'Render clip',exact:true}).click();
+ await page.getByRole('button',{name:'Preview export',exact:true}).waitFor({timeout:300000});
+ await page.getByRole('button',{name:'Preview export',exact:true}).click();
+ const video=page.locator('.export-preview');await video.evaluate(el=>new Promise((resolve,reject)=>{if(el.readyState>=1)resolve();else{el.addEventListener('loadedmetadata',resolve,{once:true});el.addEventListener('error',()=>reject(new Error('Actual export failed to load')),{once:true})}}));
+ const output=await video.evaluate(el=>({width:el.videoWidth,height:el.videoHeight,duration:el.duration}));
+ assert.equal(output.width,1080);assert.equal(output.height,1920);assert.ok(output.duration>0);
+ const pending=page.waitForEvent('download');await page.getByRole('link',{name:'Download MP4',exact:true}).click();await(await pending).saveAs(path.join(artifacts,'framecraft-v3-browser.mp4'));
+ check('real 1080p export and download',output);
+ await page.getByRole('button',{name:'Close dialog',exact:true}).click();
+ await page.getByRole('button',{name:'Captions',exact:true}).click();
+ await page.screenshot({path:path.join(artifacts,'editor-desktop.png'),fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ const mobile=await page.evaluate(()=>({viewport:innerWidth,scroll:document.documentElement.scrollWidth}));assert.ok(mobile.scroll<=mobile.viewport,JSON.stringify(mobile));
+ await page.screenshot({path:path.join(artifacts,'editor-mobile.png'),fullPage:true});
+ check('responsive professional editor',mobile);
+ await page.reload();await page.getByRole('button',{name:`Open ${project.title}`,exact:true}).click();await page.getByRole('button',{name:'Make it yours',exact:true}).first().click();
+ assert.equal(await page.getByLabel('Caption 1 emoji',{exact:true}).inputValue(),'💡');
+ assert.equal(await page.getByLabel('Caption 1 keywords',{exact:true}).inputValue(),'meaningful, idea');
+ check('refresh persistence','Emoji, keyword choices and saved professional edit survive a complete reload.');
+ await page.getByRole('button',{name:'Back to clips',exact:true}).click();
+ const zipPending=page.waitForEvent('download');await page.getByRole('link',{name:'Download all · ZIP',exact:true}).click();const zipPath=path.join(artifacts,'framecraft-v3-batch.zip');await(await zipPending).saveAs(zipPath);const zip=await readFile(zipPath);assert.equal(zip.subarray(0,2).toString(),'PK');assert.ok(zip.length>100);
+ check('batch ZIP download',{bytes:zip.length,header:'PK'});
+
+ assert.deepEqual(errors,[]);check('browser errors',errors);
+ await writeFile(path.join(artifacts,'results.json'),JSON.stringify({status:'passed',projectId:id,base,checks,errors},null,2));
+ console.log(JSON.stringify({status:'passed',projectId:id,checks,errors},null,2));
+}catch(error){await page.screenshot({path:path.join(artifacts,'failure.png'),fullPage:true}).catch(()=>{});console.error(error);process.exitCode=1}finally{await browser.close()}

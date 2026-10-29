@@ -1,0 +1,12 @@
+fastapi==0.150.0
+uvicorn==0.54.0
+pydantic==2.14.1
+python-multipart==0.0.32
+SQLAlchemy==2.1.5
+faster-whisper==1.2.1
+opencv-python-headless==4.14.0.94
+numpy==2.5.4
+httpx==0.28.1
+pytest==9.1.1
+psutil==7.2.2
+Pillow==12.3.0

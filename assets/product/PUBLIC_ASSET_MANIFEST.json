@@ -1,0 +1,110 @@
+{
+  "capture_date": "2026-10-29 Asia/Kuala_Lumpur",
+  "capture_type": "Actual Framecraft user interface and actual encoded output, using isolated demo data",
+  "projects_visible": 2,
+  "private_user_projects_visible": 0,
+  "real_analysis": {
+    "science_source_seconds": 120,
+    "science_candidates": 4,
+    "public_speech_source_seconds": 11,
+    "public_speech_candidates": 1
+  },
+  "rendered_video": {
+    "codec": "h264",
+    "width": 1080,
+    "height": 1920,
+    "seconds": 37.8,
+    "audio_removed_for_public_preview": true,
+    "source_resolution": [
+      720,
+      1280
+    ],
+    "upscaled_canvas": true
+  },
+  "manual_refinements": {
+    "title": "Different people need different information",
+    "pictogram": "Lightbulb on the phrase about different priorities",
+    "editorial_scores_modified": false,
+    "clip_intervals_modified": false
+  },
+  "browser_errors": [],
+  "assets": [
+    {
+      "name": "dashboard.png",
+      "sha256": "71f900fd58f2cef6a34f00a30493311ad8ab3ab7027f3ec6ee88fe99fe8db02c",
+      "bytes": 121425,
+      "dimensions": [
+        1440,
+        1003
+      ]
+    },
+    {
+      "name": "import.png",
+      "sha256": "cf72a50b70d4803cec5df061d7dfce159b1f918d707bafe2fa59ceb9680fc6a4",
+      "bytes": 151084,
+      "dimensions": [
+        1440,
+        1003
+      ]
+    },
+    {
+      "name": "discovery-viewport.png",
+      "sha256": "d671bc3949fa6249693823968eba4dbf25239c8dc8c7dd33bc1890aa485dc7dc",
+      "bytes": 164702,
+      "dimensions": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "name": "ranking-breakdown.png",
+      "sha256": "115e87b9980bb2afdf440987eea278d694ed31777b1bfa63906173dd49753861",
+      "bytes": 29106,
+      "dimensions": [
+        319,
+        737
+      ]
+    },
+    {
+      "name": "editor-viewport.png",
+      "sha256": "01e25e0bbe1c4dea44db21eb58f3f055530b208a6fb11d2d10c1c69887dab3d0",
+      "bytes": 161516,
+      "dimensions": [
+        1440,
+        1000
+      ]
+    },
+    {
+      "name": "framing-export-settings.png",
+      "sha256": "8cfcfd55f08633d6e85a5c9b379531376085531eda103e7fdfb7f72313c3671e",
+      "bytes": 161925,
+      "dimensions": [
+        1440,
+        1082
+      ]
+    },
+    {
+      "name": "export.png",
+      "sha256": "7a067e0c442113bc258362b532ab493e06e6e626d72ffe87be5070311284a000",
+      "bytes": 242863,
+      "dimensions": [
+        1440,
+        1082
+      ]
+    },
+    {
+      "name": "editor-mobile.png",
+      "sha256": "0e69903a06beeddac28a770371e99af1bf8a7193358b56991e97cf54da7e52a6",
+      "bytes": 113726,
+      "dimensions": [
+        390,
+        2698
+      ]
+    },
+    {
+      "name": "framecraft-real-export-muted.mp4",
+      "sha256": "03de54ed01cd9f88c42f8a721be1321290a439f2f49eb49226849604aa04dd6d",
+      "bytes": 986957
+    }
+  ]
+}

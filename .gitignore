@@ -1,0 +1,64 @@
+# Local configuration, credentials and authentication state
+.env
+.env.*
+!.env.example
+*client_secret*.json
+*oauth*client*.json
+*credentials*.json
+*token*.json
+*.pem
+*.key
+*.p12
+*.pfx
+
+# User projects, sources, exports, model weights, databases and private logs
+data/
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.log
+*.flac
+*.wav
+*.mp3
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.onnx
+*.safetensors
+*.pt
+*.pth
+model.bin
+tests/artifacts/
+frontend/browser-evidence.json
+docs/screenshots/
+
+# Generated environments, downloaded tools and build caches
+.venv/
+venv/
+node_modules/
+frontend/dist/
+tools/
+.tools/
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*.tsbuildinfo
+coverage/
+.coverage
+htmlcov/
+.DS_Store
+Thumbs.db
+
+# Private working material is never part of this public project
+work/
+tmp/
+reverse-engineering/
+deliverables/
+BowtieBrain/
+BowtieBrain_Animation_Test/
+
+# Explicitly reviewed, muted product demonstration only
+!assets/product/framecraft-real-export-muted.mp4

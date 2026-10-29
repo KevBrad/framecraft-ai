@@ -1,0 +1,17 @@
+services:
+  framecraft:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - framecraft-data:/app/data
+    environment:
+      WHISPER_MODEL: tiny.en
+      MAX_UPLOAD_MB: "1024"
+      MAX_DISK_GB: "20"
+      MAX_WORKER_MB: "2048"
+    mem_limit: 3g
+    cpus: 4
+    init: true
+volumes:
+  framecraft-data:

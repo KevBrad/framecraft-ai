@@ -1,0 +1,13 @@
+.git
+.venv
+frontend/node_modules
+frontend/dist
+data
+tools
+tests
+docs
+.env
+assets/fonts/dejavu
+assets/fonts/*.zip
+assets/fonts/*.gz
+**/__pycache__

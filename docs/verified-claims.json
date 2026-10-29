@@ -1,0 +1,105 @@
+{
+  "as_of": "2026-10-29",
+  "current_validation": {
+    "automated_tests_passed": 290,
+    "additional_subtests_passed": 4,
+    "pytest_seconds": 78.73,
+    "skips": 0,
+    "frontend_production_build": "passed",
+    "private_production_rows_unchanged": true,
+    "source_and_library_hashes_unchanged": true
+  },
+  "historical_release_evidence": {
+    "date": "2026-10-23",
+    "new_browser_checks": 9,
+    "existing_browser_checks": 11,
+    "separate_archive_and_readonly_checks": true,
+    "not_rerun_on": "2026-10-29",
+    "long_video_runs": [
+      {
+        "source_class": "Authorized interview",
+        "duration_seconds": 809.0297,
+        "analysis_seconds": 101.2,
+        "timestamped_words": 2750,
+        "peak_sampled_private_mib": 1341.02,
+        "peak_sampled_resident_mib": 595.17,
+        "last_word_seconds": 805.78,
+        "historical_release_date": "2026-10-23"
+      },
+      {
+        "source_class": "Continuous public-domain lecture excerpt",
+        "duration_seconds": 900.0667,
+        "analysis_seconds": 104.08,
+        "timestamped_words": 2131,
+        "peak_sampled_private_mib": 1309.41,
+        "peak_sampled_resident_mib": 568.25,
+        "last_word_seconds": 899.98,
+        "historical_release_date": "2026-10-23"
+      },
+      {
+        "source_class": "Continuous public-domain lecture excerpt",
+        "duration_seconds": 3600.0667,
+        "analysis_seconds": 311.62,
+        "timestamped_words": 9224,
+        "peak_sampled_private_mib": 1397.46,
+        "peak_sampled_resident_mib": 643.3,
+        "last_word_seconds": 3599.97,
+        "historical_release_date": "2026-10-23"
+      }
+    ]
+  },
+  "historical_exports_rechecked": [
+    {
+      "sample": "Selected story from 15-minute lecture source",
+      "width": 1080,
+      "height": 1920,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "duration_seconds": 51.066667,
+      "video_frame_rate": "30/1",
+      "container_rechecked": "2026-10-29",
+      "original_export": "2026-10-23"
+    },
+    {
+      "sample": "Selected story from 60-minute lecture source",
+      "width": 1080,
+      "height": 1920,
+      "video_codec": "h264",
+      "audio_codec": "aac",
+      "duration_seconds": 54.633333,
+      "video_frame_rate": "30/1",
+      "container_rechecked": "2026-10-29",
+      "original_export": "2026-10-23"
+    }
+  ],
+  "verified_architecture": {
+    "interface": "React and TypeScript; Vite build served by FastAPI",
+    "persistence": "SQLite WAL schema 2 and local filesystem",
+    "queues": "Separate durable import and single analysis consumer",
+    "speech": "faster-whisper/CTranslate2 CPU int8; tiny.en beam 3 balanced and cached base beam 5 quality",
+    "speech_windows": "30-second cores with up to two seconds of context on each side; midpoint word ownership and persisted core checkpoints",
+    "editorial": "Versioned local extractive/lexical/acoustic heuristics with source quotation titles, six explainable dimensions and duplicate suppression",
+    "framing": "Bounded OpenCV face geometry and scene changes; safe fit/manual alternatives; no active-speaker identity",
+    "captions": "Five professional presets, word activation when valid estimates exist, editable keywords and eight original vector pictograms",
+    "rendering": "FFmpeg/libass; ffprobe validates real H.264/AAC MP4s; 720p/1080p and streamed ZIP downloads",
+    "safety": "Windows gated worker process and default 2048 MiB Job Object limit; streaming imports in 256 KiB chunks"
+  },
+  "memory_failure": {
+    "historical_observation": "Saved test report records three worker allocation errors involving a 243 MiB complex128 array shaped (1, 79376, 201).",
+    "documented_previous_app_behavior": "Historical repair report describes whole-WAV materialization before feature extraction.",
+    "engineering_inference": "Length-scaled feature extraction under a fixed memory budget explains why long audio could exhaust worker headroom. The portfolio must not identify an upstream library defect or claim a new forensic reproduction of the old implementation.",
+    "current_code_observation": "Bounded float32 PCM windows and resumable per-core checkpoints limit feature extraction input independently of source length.",
+    "budget_change": "The documented repair retained the 2048 MiB worker limit rather than raising it."
+  },
+  "remaining_limits": [
+    "Selection and prompt discovery remain heuristic, not general neural multimodal understanding.",
+    "Speech mistakes, names and amounts require review; no independently established 150 ms timing accuracy.",
+    "No reliable active-speaker identification, forced alignment, diarization, stacked layouts or semantic action recognition.",
+    "Google Drive OAuth code exists; live account-backed authorization remains unverified.",
+    "YouTube URLs provide references/metadata unless the user supplies or links an authorized original; no arbitrary stream download.",
+    "Local single-user application; no demonstrated multi-tenant/public-cloud hardening.",
+    "No supported broad superiority over Vizard, OpusClip or Submagic."
+  ],
+  "commercial_status": "Engineering validation only. Customers, revenue, fundraising, partnerships and product-market fit have not been established by this audit.",
+  "authorship": "User-led project direction and evaluation with material AI-assisted implementation; no claim of sole manual coding or invented employment."
+}
