@@ -66,3 +66,7 @@ This gate approves the prepared **file payload** for the parent's intentional fi
 The publishing workflow inspected the exact 114-file source index and one-file profile index. The additional source file is `.gitattributes`, which protects PDFs, presentations, images, fonts and the approved MP4 from line-ending conversion. Binary Git-index hashes match the reviewed filesystem files; all four document copies match the delivered originals. All 32 relative Markdown links resolve.
 
 Both intentional initial Git histories passed Gitleaks 8.30.1 with zero findings before publication. There was no original committed application history to migrate. The complete proposed histories, including this audit update, must pass the same scan immediately before the first push. This review does not claim a penetration test or a hardened public deployment.
+
+## Publication verification
+
+Both complete proposed histories passed the final pre-push scan with zero findings. The source and profile repositories were then published publicly under KevBrad. The initial remote source tree matched all 114 reviewed index paths and the intended commit. Thirteen public raw downloads, including all four portfolio documents and the profile README, matched their committed bytes. Seven embedded README images loaded in the actual public browser view. Private vulnerability reporting is enabled. The [delivery checklist](DELIVERY_CHECKLIST.md) records hosted CI results and file-validation boundaries. Later documentation-only verification commits are also scanned before pushing.

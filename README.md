@@ -131,6 +131,7 @@ Highlight selection remains partly heuristic. ASR and factual quotations need hu
 - [One-page product overview](portfolio/one-pager/Framecraft_One_Page_Overview.pdf)
 - [Research sources and claim classifications](docs/RESEARCH_SOURCES.md)
 - [Publication security audit](docs/PUBLICATION_SECURITY_AUDIT.md)
+- [Delivery checklist and hosted verification](docs/DELIVERY_CHECKLIST.md)
 
 The next product questions are highlight accuracy, editing effort and willingness to pay. Proposed creator trials, subscription ideas and a hosted pilot remain hypotheses. No revenue, customer, fundraising or competitive-superiority claim is made.
 

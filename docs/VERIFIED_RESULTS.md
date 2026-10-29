@@ -10,6 +10,8 @@ Audit date: 29 October 2026. This summary separates checks rerun for publication
 
 ## Historical long-video processing
 
+Hosted verification after publication also passed: [source CI](https://github.com/KevBrad/framecraft-ai/actions/runs/40841728996) ran 177 lightweight tests with two explicit media-test exclusions in 11.10 seconds and built the frontend. The [manual clean Windows media workflow](https://github.com/KevBrad/framecraft-ai/actions/runs/40841863684) prepared documented public fixtures and passed all 290 tests plus four subtests in 64.01 seconds. This adds clean-environment reproducibility; it is not a new 15-/60-minute benchmark.
+
 The following results come from the **23 October 2026 release evidence**, re-inspected on 29 October. The complete long recordings were **not reprocessed in this publication pass**.
 
 |Source duration|Import/upload plus analysis|Timestamped words|Peak sampled private memory|
