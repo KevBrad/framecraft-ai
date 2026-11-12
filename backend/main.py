@@ -148,13 +148,15 @@ def health():
 
 @app.get('/api/projects')
 def projects():
-    with Session() as db:
+    # Serialize all component reads with queue transitions. A legacy SQLite
+    # SELECT transaction alone can mix old project fields with a newer job row.
+    with lock, Session() as db:
         return [project_json(db, p) for p in db.scalars(select(Project).order_by(Project.created_at.desc()))]
 
 
 @app.get('/api/projects/{project_id}')
 def project(project_id: str):
-    with Session() as db:
+    with lock, Session() as db:
         return project_json(db, get(db, Project, project_id))
 
 
@@ -169,7 +171,7 @@ def import_url(spec: URLImport):
     task=call(import_service.create,ImportRequest(**spec.model_dump()))
     deadline=time.monotonic()+1000
     while time.monotonic()<deadline:
-        with Session() as db:
+        with lock, Session() as db:
             from .database import ImportTask
             current=db.get(ImportTask,task['id'])
             if current.project_id:
@@ -233,7 +235,7 @@ async def create_project(file: UploadFile = File(...), rights_confirmed: bool = 
             if youtube_url:
                 media_library.link_youtube(db, source, youtube_id(youtube_url))
             enqueue_analysis(db, p, settings)
-        with Session() as db:
+        with lock, Session() as db:
             return project_json(db, db.get(Project, pid))
     except Exception:
         shutil.rmtree(directory, ignore_errors=True)

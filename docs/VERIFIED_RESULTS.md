@@ -43,3 +43,8 @@ Current code visibly reads **30-second cores with two seconds of context per sid
 ## Claims to avoid
 
 Do not describe scores as validated virality probabilities, test counts as customers, a cached model as an external AI service, safe fit as active-speaker recognition, word estimates as forced alignment, metadata lookup as a YouTube media download, or historical runs as newly executed tests. Source quality limits still apply to 1080p upscaling. Live Google Drive authorization, broad competitive superiority, customer demand and commercial traction remain unestablished.
+
+
+## 12 November update
+
+The new experimental release has fresh long-video, browser, export and preservation evidence. See [V4_RELEASE_REPORT.md](V4_RELEASE_REPORT.md); earlier measurements retain their original scope.

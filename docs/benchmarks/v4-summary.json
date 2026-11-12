@@ -1,0 +1,290 @@
+{
+  "date": "2026-11-12",
+  "timezone": "Asia/Kuala_Lumpur",
+  "initial_engine": "multimodal-evidence-v4.1",
+  "final_engine": "multimodal-evidence-v4.2",
+  "method": "Five actual uploads through the existing API and isolated durable workers; CPU int8. Sampled process-tree private memory, not an exact OS high-water counter.",
+  "limits": [
+    "No independent human highlight labels or blind competitor comparison.",
+    "The private interview is currently 39 seconds and already has burned-in captions.",
+    "Cinematic input is an edited trailer, not raw rushes.",
+    "The two lecture inputs are continuous excerpts of one source."
+  ],
+  "runs": [
+    {
+      "label": "gameplay-silent",
+      "duration": 70.8333,
+      "analysis_seconds": 9.25,
+      "export_seconds": 7.8,
+      "peaks": {
+        "private_mib": 416.95703125,
+        "rss_mib": 418.734375
+      },
+      "speech_words": 0,
+      "v3_count": 0,
+      "v4_count": 2,
+      "settings": {
+        "analysis_version": 4,
+        "content_genre": "gaming",
+        "min_duration": 8,
+        "max_duration": 22,
+        "requested_clips": 4,
+        "output_resolution": "1080p",
+        "discovery_mode": "best_highlights"
+      },
+      "export_metadata": {
+        "duration": 22.0,
+        "width": 1080,
+        "height": 1920,
+        "fps": 30.0,
+        "video_codec": "h264",
+        "audio_codec": null,
+        "has_audio": false,
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "rotation": 0.0,
+        "video_stream_index": 0,
+        "audio_stream_index": null,
+        "video_duration": 22.0,
+        "audio_duration": null,
+        "validation_version": "export-integrity-v4",
+        "decode_verified": true,
+        "size_bytes": 9372712,
+        "source_width": 854,
+        "source_height": 480,
+        "upscaled": true,
+        "source_quality_note": "Output resolution does not recover source detail."
+      }
+    },
+    {
+      "label": "cinematic",
+      "duration": 52.2083,
+      "analysis_seconds": 10.25,
+      "export_seconds": 7.53,
+      "peaks": {
+        "private_mib": 1242.1796875,
+        "rss_mib": 536.67578125
+      },
+      "speech_words": 20,
+      "v3_count": 0,
+      "v4_count": 2,
+      "settings": {
+        "analysis_version": 4,
+        "content_genre": "cinematic",
+        "min_duration": 8,
+        "max_duration": 22,
+        "requested_clips": 4,
+        "output_resolution": "1080p",
+        "discovery_mode": "best_highlights"
+      },
+      "export_metadata": {
+        "duration": 20.0,
+        "width": 1080,
+        "height": 1920,
+        "fps": 30.0,
+        "video_codec": "h264",
+        "audio_codec": "aac",
+        "has_audio": true,
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "rotation": 0.0,
+        "video_stream_index": 0,
+        "audio_stream_index": 1,
+        "video_duration": 20.0,
+        "audio_duration": 20.0,
+        "validation_version": "export-integrity-v4",
+        "decode_verified": true,
+        "size_bytes": 3545300,
+        "source_width": 1920,
+        "source_height": 1080,
+        "upscaled": true,
+        "source_quality_note": "Output resolution does not recover source detail."
+      }
+    },
+    {
+      "label": "lecture-15m",
+      "duration": 900.0667,
+      "analysis_seconds": 76.39,
+      "export_seconds": 8.75,
+      "peaks": {
+        "private_mib": 1267.33984375,
+        "rss_mib": 506.6171875
+      },
+      "speech_words": 2131,
+      "v3_count": 4,
+      "v4_count": 4,
+      "settings": {
+        "analysis_version": 4,
+        "content_genre": "education",
+        "min_duration": 15,
+        "max_duration": 40,
+        "requested_clips": 4,
+        "output_resolution": "1080p",
+        "discovery_mode": "best_highlights"
+      },
+      "export_metadata": {
+        "duration": 34.7,
+        "width": 1080,
+        "height": 1920,
+        "fps": 30.0,
+        "video_codec": "h264",
+        "audio_codec": "aac",
+        "has_audio": true,
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "rotation": 0.0,
+        "video_stream_index": 0,
+        "audio_stream_index": 1,
+        "video_duration": 34.7,
+        "audio_duration": 34.67,
+        "validation_version": "export-integrity-v4",
+        "decode_verified": true,
+        "size_bytes": 1281778,
+        "source_width": 1280,
+        "source_height": 720,
+        "upscaled": true,
+        "source_quality_note": "Output resolution does not recover source detail."
+      }
+    },
+    {
+      "label": "lecture-60m",
+      "duration": 3600.0667,
+      "analysis_seconds": 385.5,
+      "export_seconds": 8.78,
+      "peaks": {
+        "private_mib": 1333.859375,
+        "rss_mib": 547.6953125
+      },
+      "speech_words": 9224,
+      "v3_count": 4,
+      "v4_count": 4,
+      "settings": {
+        "analysis_version": 4,
+        "content_genre": "education",
+        "min_duration": 15,
+        "max_duration": 40,
+        "requested_clips": 4,
+        "output_resolution": "1080p",
+        "discovery_mode": "best_highlights"
+      },
+      "export_metadata": {
+        "duration": 37.4667,
+        "width": 1080,
+        "height": 1920,
+        "fps": 30.0,
+        "video_codec": "h264",
+        "audio_codec": "aac",
+        "has_audio": true,
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "rotation": 0.0,
+        "video_stream_index": 0,
+        "audio_stream_index": 1,
+        "video_duration": 37.466667,
+        "audio_duration": 37.46,
+        "validation_version": "export-integrity-v4",
+        "decode_verified": true,
+        "size_bytes": 1230526,
+        "source_width": 1280,
+        "source_height": 720,
+        "upscaled": true,
+        "source_quality_note": "Output resolution does not recover source detail."
+      }
+    },
+    {
+      "label": "private-interview",
+      "duration": 39.0,
+      "analysis_seconds": 13.34,
+      "export_seconds": 7.53,
+      "peaks": {
+        "private_mib": 1281.54296875,
+        "rss_mib": 509.67578125
+      },
+      "speech_words": 134,
+      "v3_count": 2,
+      "v4_count": 2,
+      "settings": {
+        "analysis_version": 4,
+        "content_genre": "podcast",
+        "min_duration": 15,
+        "max_duration": 40,
+        "requested_clips": 4,
+        "output_resolution": "1080p",
+        "discovery_mode": "best_highlights"
+      },
+      "export_metadata": {
+        "duration": 15.3667,
+        "width": 1080,
+        "height": 1920,
+        "fps": 30.0,
+        "video_codec": "h264",
+        "audio_codec": "aac",
+        "has_audio": true,
+        "format": "mov,mp4,m4a,3gp,3g2,mj2",
+        "rotation": 0.0,
+        "video_stream_index": 0,
+        "audio_stream_index": 1,
+        "video_duration": 15.366667,
+        "audio_duration": 15.34,
+        "validation_version": "export-integrity-v4",
+        "decode_verified": true,
+        "size_bytes": 3092002,
+        "source_width": 720,
+        "source_height": 1280,
+        "upscaled": true,
+        "source_quality_note": "Output resolution does not recover source detail."
+      }
+    }
+  ],
+  "checks": [
+    {
+      "v3_actual_no_audio_failure": true
+    },
+    {
+      "reanalysis_preserved_saved_edit": true,
+      "source": "cinematic"
+    },
+    {
+      "cancelled_after_completed_cores": 5
+    }
+  ],
+  "final_refinement": {
+    "game_before": [
+      {
+        "start": 44.3,
+        "end": 66.3
+      },
+      {
+        "start": 3.8,
+        "end": 25.8
+      }
+    ],
+    "game_after": [
+      {
+        "start": 44.3,
+        "end": 58.0
+      }
+    ],
+    "game_reanalysis_seconds": 5.36,
+    "saved_edits_retained": true,
+    "export_metadata": {
+      "duration": 13.7,
+      "width": 1080,
+      "height": 1920,
+      "fps": 30.0,
+      "video_codec": "h264",
+      "audio_codec": null,
+      "has_audio": false,
+      "format": "mov,mp4,m4a,3gp,3g2,mj2",
+      "rotation": 0.0,
+      "video_stream_index": 0,
+      "audio_stream_index": null,
+      "video_duration": 13.7,
+      "audio_duration": null,
+      "validation_version": "export-integrity-v4",
+      "decode_verified": true,
+      "size_bytes": 8633459,
+      "source_width": 854,
+      "source_height": 480,
+      "upscaled": true,
+      "source_quality_note": "Output resolution does not recover source detail."
+    },
+    "method": "Generic sustained-motion support excludes isolated image transitions; sustained low-motion tails are shortened only in sparse-speech activity routes. No fixture-specific time boundaries."
+  }
+}

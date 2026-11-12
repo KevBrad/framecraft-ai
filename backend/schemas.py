@@ -8,7 +8,8 @@ class StrictModel(BaseModel):
 
 
 class AnalysisSettings(StrictModel):
-    analysis_version: Literal[1,3] = 3
+    analysis_version: Literal[1,3,4] = 3
+    content_genre: Literal['auto','general','podcast','gaming','cinematic','education','sports','comedy','visual'] = 'auto'
     min_duration: float = Field(default=15, ge=3, le=180)
     max_duration: float = Field(default=45, ge=3, le=180)
     topic: str = Field(default='', max_length=500)

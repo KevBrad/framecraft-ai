@@ -10,6 +10,9 @@ Built through product research, explicit acceptance criteria, iterative testing 
 
 **Explore:** [Pitch deck](portfolio/pitch-deck/Framecraft_Startup_Pitch_Deck_2026.pdf) · [Engineering case study](portfolio/case-study/Framecraft_Engineering_Case_Study_2026.pdf) · [One-page brief](portfolio/one-pager/Framecraft_One_Page_Overview.pdf) · [Architecture](docs/ARCHITECTURE.md)
 
+
+**12 November update:** opt-in genre-aware discovery now measures visual activity, scene changes and audio alongside the retained speech selector. Silent/low-dialogue inputs can produce editable clips; specific game events and story meaning are not inferred. **332 tests + four subtests**, nine real browser checks, fresh 15/60-minute processing and cancel/resume verification passed. [Release results and limitations](docs/V4_RELEASE_REPORT.md) · [v4 architecture](docs/V4_ARCHITECTURE.md) · [research](docs/research/COMPETITIVE_RESEARCH_2026.md).
+
 ## See the actual product
 
 ![Real Framecraft editor with safe demonstration content](assets/product/editor-viewport.png)

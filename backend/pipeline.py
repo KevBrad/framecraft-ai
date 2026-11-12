@@ -28,6 +28,10 @@ class PipelineError(RuntimeError):
     """A processing failure safe to show to a local user."""
 
 
+class NoSpeechError(PipelineError):
+    """Recognition completed without reliable speech; visual analysis may continue."""
+
+
 ROOT = Path(__file__).resolve().parents[1]
 SCORE_WEIGHTS = {
     "hook": 0.19, "completeness": 0.20, "density": 0.15,
@@ -322,7 +326,7 @@ def transcribe(audio: Path, duration: float, report: Callable[[str], None]) -> d
             raise PipelineError("Speech recognition ran out of memory in an audio chunk. Close other heavy apps or set TRANSCRIBE_CHUNK_SECONDS=10, then retry. Saved chunks and the original video are preserved.") from exc
         raise PipelineError(f"Local speech recognition failed: {exc}. Retry to resume completed chunks.") from exc
     if not output:
-        raise PipelineError("No reliable speech was recognized. Try a clearer speech-containing source or choose a multilingual WHISPER_MODEL.")
+        raise NoSpeechError("No reliable speech was recognized. Try a clearer speech-containing source or choose a multilingual WHISPER_MODEL.")
     return {"language": language, "language_probability": probability,
             "segments": output, "provider": "faster-whisper / CTranslate2 CPU int8",
             "model": os.environ.get("WHISPER_MODEL", "tiny.en"), "word_timestamps": True,
@@ -586,91 +590,128 @@ def analyze_framing(proxy, duration, report, intervals=None):
 
 def analyze(source: Path, workdir: Path, settings: dict, report: Callable[[str], None]) -> dict:
     from .model_profiles import configure_profile
-    profile = configure_profile(settings.get('model_mode','balanced'),report)
+    profile = configure_profile(settings.get('model_mode', 'balanced'), report)
+    multimodal = settings.get('analysis_version', 3) == 4
     source, workdir = Path(source).resolve(), Path(workdir).resolve()
     workdir.mkdir(parents=True, exist_ok=True)
     report("Inspecting video")
     metadata = probe(source)
-    if not metadata["has_audio"]:
-        raise PipelineError("The video has no audio stream. Speech-based clipping requires audible speech.")
+    if not metadata['has_audio'] and not multimodal:
+        raise PipelineError("The video has no audio stream. Speech-based clipping requires audible speech. Choose genre-aware discovery for visual footage.")
     fingerprint = {"size": source.stat().st_size, "mtime": source.stat().st_mtime_ns,
                    "model": os.environ.get("WHISPER_MODEL_PATH") or os.environ.get("WHISPER_MODEL", "tiny.en"), "schema": 3,
-                   "chunk_seconds": os.environ.get("TRANSCRIBE_CHUNK_SECONDS", "30"), "beam_size": os.environ.get("WHISPER_BEAM_SIZE","3")}
+                   "chunk_seconds": os.environ.get("TRANSCRIBE_CHUNK_SECONDS", "30"), "beam_size": os.environ.get("WHISPER_BEAM_SIZE", "3")}
     cache_file = workdir / "analysis-cache.json"
-    cached = {}
-    if cache_file.is_file():
-        try:
-            cached = json.loads(cache_file.read_text(encoding="utf-8"))
-            if cached.get("fingerprint") != fingerprint:
-                cached = {}
-        except (OSError, ValueError):
-            cached = {}
-    audio, proxy, thumbnail = workdir / "audio.wav", workdir / "proxy.mp4", workdir / "thumbnail.jpg"
-    asset_key = {"size": fingerprint["size"], "mtime": fingerprint["mtime"], "normalization": 1}
-    asset_file = workdir / "analysis-source.json"
     try:
-        assets_valid = json.loads(asset_file.read_text(encoding="utf-8")) == asset_key
+        cached = json.loads(cache_file.read_text(encoding='utf-8'))
+        if cached.get('fingerprint') != fingerprint:
+            cached = {}
+    except (OSError, ValueError):
+        cached = {}
+    audio, proxy, thumbnail = workdir / 'audio.wav', workdir / 'proxy.mp4', workdir / 'thumbnail.jpg'
+    asset_key = {'size': fingerprint['size'], 'mtime': fingerprint['mtime'], 'normalization': 1}
+    asset_file = workdir / 'analysis-source.json'
+    try:
+        assets_valid = json.loads(asset_file.read_text(encoding='utf-8')) == asset_key
     except (OSError, ValueError):
         assets_valid = False
-    limit = max(120, min(3600, metadata["duration"] * 3))
-    if not assets_valid or not audio.is_file():
-        report("Extracting normalized analysis audio")
-        pending_audio = workdir / "pending-audio.wav"
-        _run([_binary("ffmpeg"), "-v", "error", "-nostdin", "-y", *INPUT_OPTIONS, "-i", str(source),
-              "-map", f"0:{metadata['audio_stream_index']}", "-vn", "-ac", "1", "-ar", "16000",
-              "-af", "highpass=f=70", "-c:a", "pcm_s16le", str(pending_audio)], timeout=limit,
-             checkpoint=lambda: report("Extracting normalized analysis audio"))
+    limit = max(120, min(3600, metadata['duration'] * 3))
+    if not assets_valid:
+        proxy.unlink(missing_ok=True)
+        thumbnail.unlink(missing_ok=True)
+    if metadata['has_audio'] and (not assets_valid or not audio.is_file()):
+        report('Extracting normalized analysis audio')
+        pending_audio = workdir / 'pending-audio.wav'
+        _run([_binary('ffmpeg'), '-v', 'error', '-nostdin', '-y', *INPUT_OPTIONS, '-i', str(source),
+              '-map', f"0:{metadata['audio_stream_index']}", '-vn', '-ac', '1', '-ar', '16000',
+              '-af', 'highpass=f=70', '-c:a', 'pcm_s16le', str(pending_audio)], timeout=limit,
+             checkpoint=lambda: report('Extracting normalized analysis audio'))
         pending_audio.replace(audio)
-        # Commit asset identity independently of the eventual transcript, so a
-        # cancelled analysis retains the WAV identity and completed audio cores.
-        if not assets_valid:
-            proxy.unlink(missing_ok=True)
-            thumbnail.unlink(missing_ok=True)
-        _write_json(asset_file, asset_key)
-    report("Measuring audio energy and silence")
-    energy = cached.get("energy") or audio_energy(audio, report)
-    if not energy or max(e["dbfs"] for e in energy) < -55:
-        raise PipelineError("The source is silent or too quiet for reliable speech recognition. No clips were fabricated.")
-    transcript = cached.get("transcript") or transcribe(audio, metadata["duration"], report)
-    # Save expensive model output even if later preview generation fails.
-    cache = {"fingerprint": fingerprint, "transcript": transcript, "energy": energy}
+    _write_json(asset_file, asset_key)
+    report('Measuring audio energy and silence')
+    energy = (cached.get('energy') or audio_energy(audio, report)) if metadata['has_audio'] else []
+    quiet = not energy or max(e['dbfs'] for e in energy) < -55
+    empty = {'language': None, 'segments': [], 'provider': 'No reliable speech', 'model': None,
+             'word_timestamps': False, 'speech_status': 'no_audio' if not metadata['has_audio'] else 'silent'}
+    if quiet:
+        if not multimodal:
+            raise PipelineError('The source is silent or too quiet for reliable speech recognition. No clips were fabricated. Choose genre-aware discovery for visual footage.')
+        transcript = empty
+    else:
+        transcript = cached.get('transcript')
+        if transcript is None or (not multimodal and not transcript.get('segments')):
+            try:
+                transcript = transcribe(audio, metadata['duration'], report)
+            except NoSpeechError:
+                if not multimodal:
+                    raise
+                transcript = {**empty, 'speech_status': 'not_recognized'}
+    cache = {'fingerprint': fingerprint, 'transcript': transcript, 'energy': energy}
     _write_json(cache_file, cache)
     from .editorial import source_map, VERSION as editorial_version
-    report("Building source topic and question map")
-    context = cached.get('content_map') if cached.get('content_map',{}).get('version') == editorial_version else None
+    report('Building source topic and question map')
+    context = cached.get('content_map') if cached.get('content_map', {}).get('version') == editorial_version else None
     context = context or source_map(transcript, metadata['duration'])
-    cache['content_map'] = context
-    cache['model_profile'] = profile
+    cache.update(content_map=context, model_profile=profile)
     _write_json(cache_file, cache)
-    report("Finding hooks, completing stories and comparing candidates")
-    clips = discover_clips(transcript, metadata["duration"], {"analysis_version":3,**settings}, energy, context=context)
+
+    def prepare_proxy():
+        if proxy.is_file():
+            return
+        report('Creating analysis video proxy')
+        pending = workdir / 'pending-proxy.mp4'
+        _run([_binary('ffmpeg'), '-v', 'error', '-nostdin', '-y', *INPUT_OPTIONS, '-i', str(source),
+              '-map', f"0:{metadata['video_stream_index']}", '-an', '-vf', "scale='min(640,iw)':-2,fps=8",
+              '-c:v', 'libx264', '-preset', 'ultrafast', '-crf', '30', '-pix_fmt', 'yuv420p', str(pending)],
+             timeout=limit, checkpoint=lambda: report('Creating analysis video proxy'))
+        pending.replace(proxy)
+
+    intelligence = None
+    report('Finding hooks, completing stories and comparing candidates')
+    if multimodal:
+        prepare_proxy()
+        from .intelligence import analyze_evidence, select_clips
+        try:
+            evidence = analyze_evidence(source, workdir, metadata, transcript, report, energy=energy, proxy=proxy)
+            clips = select_clips(transcript, metadata['duration'], settings, evidence, energy=energy, context=context)
+            intelligence = {k: v for k, v in evidence.items() if k in ('version', 'genre', 'regions', 'diagnostics')}
+            intelligence['sample_count'] = len(evidence.get('samples', []))
+        except (OSError, ValueError, PipelineError) as exc:
+            if getattr(exc, 'cancelled', False):
+                raise
+            if not transcript.get('segments'):
+                raise PipelineError('Visual analysis could not complete. Retry; the original and saved speech checkpoints remain available.') from exc
+            report('Visual analysis unavailable; retaining speech-based selection')
+            clips = discover_clips(transcript, metadata['duration'], {**settings, 'analysis_version': 3}, energy, context=context)
+            intelligence = {'version': 'multimodal-fallback-v4', 'fallback': True,
+                            'warning': 'Visual analysis unavailable. These candidates use the retained speech engine.'}
+    else:
+        clips = discover_clips(transcript, metadata['duration'], {'analysis_version': 3, **settings}, energy, context=context)
     if not clips:
-        raise PipelineError("Speech was transcribed, but no valid clip fits these durations. Try a shorter minimum.")
-    if not proxy.is_file():
-        report("Creating analysis video proxy")
-        pending_proxy = workdir / "pending-proxy.mp4"
-        _run([_binary("ffmpeg"), "-v", "error", "-nostdin", "-y", *INPUT_OPTIONS, "-i", str(source),
-              "-map", f"0:{metadata['video_stream_index']}", "-an", "-vf", "scale='min(640,iw)':-2,fps=8",
-              "-c:v", "libx264", "-preset", "ultrafast", "-crf", "30", "-pix_fmt", "yuv420p", str(pending_proxy)],
-             timeout=limit, checkpoint=lambda: report("Creating analysis video proxy"))
-        pending_proxy.replace(proxy)
+        raise PipelineError('No sufficiently supported moment fits these settings. Try shorter durations or review the source manually; weak clips were not added to fill the requested count.')
+    prepare_proxy()
     if not thumbnail.is_file():
-        report("Preparing project thumbnail")
-        _run([_binary("ffmpeg"), "-v", "error", "-nostdin", "-y", "-ss", str(min(3, metadata["duration"] / 4)),
-              *INPUT_OPTIONS, "-i", str(proxy), "-frames:v", "1", "-q:v", "3", str(thumbnail)], timeout=60)
-    intervals = [[clip["start"], clip["end"]] for clip in clips]
-    framing = cached.get("framing") if cached.get("framing_intervals") == intervals else None
-    if not framing or framing.get("version") != "scene-director-v3.1" or "unavailable" in framing.get("reason", "").lower():
-        framing = analyze_framing(proxy, metadata["duration"], report, intervals)
-    cache["framing"] = framing
-    cache["framing_intervals"] = intervals
+        report('Preparing project thumbnail')
+        _run([_binary('ffmpeg'), '-v', 'error', '-nostdin', '-y', '-ss', str(min(3, metadata['duration'] / 4)),
+              *INPUT_OPTIONS, '-i', str(proxy), '-frames:v', '1', '-q:v', '3', str(thumbnail)], timeout=60)
+    intervals = [[clip['start'], clip['end']] for clip in clips]
+    framing = cached.get('framing') if cached.get('framing_intervals') == intervals else None
+    if not framing or framing.get('version') != 'scene-director-v3.1' or 'unavailable' in framing.get('reason', '').lower():
+        framing = analyze_framing(proxy, metadata['duration'], report, intervals)
+    cache.update(framing=framing, framing_intervals=intervals)
+    if intelligence:
+        cache['intelligence'] = intelligence
     _write_json(cache_file, cache)
     for clip in clips:
-        clip["framing"] = framing
+        clip['framing'] = framing
         from .director import recommended_layout
-        clip['edit']['layout'] = recommended_layout(framing,clip['start'],clip['end']) if settings.get('smart_reframing',True) else 'center' 
-    report("Preparing editable clips")
-    return {"metadata": {**metadata,"content_map":context,"model_profile":profile}, "transcript": transcript, "clips": clips, "framing": framing}
+        if not (multimodal and clip['edit'].get('layout') == 'fit'):
+            clip['edit']['layout'] = recommended_layout(framing, clip['start'], clip['end']) if settings.get('smart_reframing', True) else 'center'
+    report('Preparing editable clips')
+    result_metadata = {**metadata, 'content_map': context, 'model_profile': profile}
+    if intelligence:
+        result_metadata['intelligence'] = intelligence
+    return {'metadata': result_metadata, 'transcript': transcript, 'clips': clips, 'framing': framing}
 
 
 def _ass_time(seconds: float) -> str:
@@ -964,6 +1005,14 @@ def validate_export(output: Path, expected_duration: float, size: tuple[int, int
     if expects_audio and metadata.get("video_duration") and metadata.get("audio_duration"):
         if abs(metadata["video_duration"] - metadata["audio_duration"]) > 0.35:
             raise PipelineError("Export validation failed: audio and video stream durations differ by over 350ms.")
+    # A plausible container header alone does not prove that later packets decode.
+    # Decode sequentially inside the already contained worker before publishing.
+    _run([_binary('ffmpeg'), '-v', 'error', '-nostdin', '-xerror', '-threads', '2',
+          *INPUT_OPTIONS, '-i', str(output), '-map', '0:v:0', '-map', '0:a?',
+          '-f', 'null', '-'], timeout=max(30, min(600, expected_duration * 3)))
+    metadata['validation_version'] = 'export-integrity-v4'
+    metadata['decode_verified'] = True
+    metadata['size_bytes'] = Path(output).stat().st_size
     return metadata
 
 

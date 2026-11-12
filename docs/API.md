@@ -19,3 +19,8 @@ The loopback FastAPI service exposes `/docs` for the generated, current OpenAPI 
 `AnalysisSettings` includes discovery mode, requested clip count, duration bounds, local model mode and presentation defaults. API defaults retain 720p compatibility; the creation UI explicitly requests 1080p. Editorial output retains a legacy score and adds a 0–10 score with dimensions, source evidence, rank, topic, tags and review indicators. Confidence means ASR word confidence, not probability of audience success.
 
 Edits retain legacy styles and add newer caption presets, pictograms, keywords, animation, resolution, opening title and audio-normalization controls. User caption changes clear stale per-word estimates. Past selection generations remain available. No public endpoint accepts arbitrary executable provider code or cloud inference instructions.
+
+
+## Experimental audiovisual analysis (v4)
+
+Analysis settings accept `analysis_version: 4` and `content_genre` (`auto`, `general`, `podcast`, `gaming`, `cinematic`, `education`, `sports`, `comedy`, `visual`). Default analysis_version remains 3. No schema migration. Clip JSON may contain optional `intelligence` with version, genre evidence, basis, measured signals, limitations and boundary_note; older clients/projects may omit it. Project metadata includes the bounded regional summary and cache diagnostics. Render metadata adds `validation_version: export-integrity-v4`, `decode_verified: true` and size_bytes only after the whole output decodes successfully. Saved edits remain authoritative.

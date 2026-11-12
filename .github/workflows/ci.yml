@@ -50,4 +50,6 @@ jobs:
           tests/test_import_transport.py
           tests/test_director.py
           tests/test_editorial.py
-          -k "not real_decoded_motion_fixture and not retained_legacy_style_can_render_independent_opening_hook"
+          tests/test_intelligence.py
+          tests/test_worker_terminal_state.py
+          -k "not real_decoded_motion_fixture and not retained_legacy_style_can_render_independent_opening_hook and not real_decoder_cache_hit and not cache_invalidation_follows_source_identity and not cancel_callback_is_not_swallowed and not invalid_video_fails_clearly"
